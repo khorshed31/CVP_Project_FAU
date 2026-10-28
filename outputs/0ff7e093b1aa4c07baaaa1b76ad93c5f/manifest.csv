@@ -1,0 +1,5 @@
+﻿original_filename,original_output,mooney_output,blur_sigma,target_white_percent,threshold
+face_001.jpg,001_original.png,001_mooney.png,3.5,39.0,132.0
+face_002.jpg,002_original.png,002_mooney.png,3.5,39.0,147.0
+face_003.jpg,003_original.png,003_mooney.png,3.5,39.0,132.0
+face_004.jpg,004_original.png,004_mooney.png,3.5,39.0,159.0

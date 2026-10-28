@@ -1,0 +1,7 @@
+﻿original_filename,mooney_filename,status,error,blur_radius,target_white_percent,threshold,actual_white_percent,white_percent_difference,width,height
+face_001.jpg,face_001_mooney.png,success,,3.5,29.0,139,29.5532,0.5532,256,256
+face_002.jpg,face_002_mooney.png,success,,3.5,29.0,172,28.9673,-0.0327,256,256
+face_003.jpg,face_003_mooney.png,success,,3.5,29.0,141,28.5049,-0.4951,256,256
+face_004.jpg,face_004_mooney.png,success,,3.5,29.0,185,28.8483,-0.1517,256,256
+face_005.jpg,face_005_mooney.png,success,,3.5,29.0,130,28.7231,-0.2769,256,256
+face_006.jpg,face_006_mooney.png,success,,3.5,29.0,144,28.9963,-0.0037,256,256
