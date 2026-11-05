@@ -1,3 +1,4 @@
+
 const form = document.getElementById("converterForm");
 const imageInput = document.getElementById("images");
 const dropZone = document.getElementById("dropZone");
@@ -27,6 +28,11 @@ const previewDescription = document.getElementById("previewDescription");
 const downloadButton = document.getElementById("downloadButton");
 const downloadFooter = document.getElementById("downloadFooter");
 const downloadFooterButton = document.getElementById("downloadFooterButton");
+
+// NEW: Original filenames elements
+const convertedFilesPanel = document.getElementById("converted-files-panel");
+const convertedFilesList = document.getElementById("converted-files-list");
+const convertedFilesCount = document.getElementById("converted-files-count");
 
 let currentDownloadURL = "";
 
@@ -58,14 +64,54 @@ function showStatus(message, type = "normal") {
     statusIndicator.setAttribute("aria-hidden", "true");
 }
 
+// NEW: Display original filenames after conversion
+function renderConvertedFiles(images) {
+    if (!convertedFilesPanel || !convertedFilesList || !convertedFilesCount) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    images.forEach((item, index) => {
+        const listItem = document.createElement("li");
+
+        // Use the original filename returned by the backend
+        listItem.textContent =
+            item.original_name || `Image ${index + 1}`;
+
+        fragment.appendChild(listItem);
+    });
+
+    convertedFilesList.replaceChildren(fragment);
+
+    convertedFilesCount.textContent =
+        `${images.length} image${images.length === 1 ? "" : "s"}`;
+
+    convertedFilesPanel.hidden = images.length === 0;
+}
+
 function clearPreviousResults() {
     resultsGrid.replaceChildren();
     resultCount.textContent = "0";
     emptyState.hidden = false;
     downloadButton.hidden = true;
     downloadFooter.hidden = true;
+
     previewDescription.textContent =
         "Your original and converted images will appear here.";
+
+    // NEW: Clear original filenames
+    if (convertedFilesPanel) {
+        convertedFilesPanel.hidden = true;
+    }
+
+    if (convertedFilesList) {
+        convertedFilesList.replaceChildren();
+    }
+
+    if (convertedFilesCount) {
+        convertedFilesCount.textContent = "0 images";
+    }
 
     currentDownloadURL = "";
     downloadButton.removeAttribute("href");
@@ -106,6 +152,7 @@ function setFiles(files) {
 
     clearPreviousResults();
     updateSelectedFiles();
+
     showStatus(
         `${accepted.length} image${accepted.length === 1 ? "" : "s"} selected.`
     );
@@ -115,6 +162,7 @@ imageInput.addEventListener("change", () => {
     if (imageInput.files.length > 0) {
         updateSelectedFiles();
         clearPreviousResults();
+
         showStatus(
             `${imageInput.files.length} image${imageInput.files.length === 1 ? "" : "s"} selected.`
         );
@@ -199,11 +247,12 @@ function createImageCard(item, index) {
     const pair = document.createElement("div");
     pair.className = "image-pair";
 
+    // Original image
     const originalFigure = document.createElement("figure");
     const originalCaption = document.createElement("figcaption");
     const originalDot = document.createElement("span");
-    originalDot.className = "caption-dot";
 
+    originalDot.className = "caption-dot";
     originalCaption.append(originalDot, document.createTextNode("Original"));
 
     const originalFrame = document.createElement("div");
@@ -217,11 +266,12 @@ function createImageCard(item, index) {
     originalFrame.appendChild(originalImage);
     originalFigure.append(originalCaption, originalFrame);
 
+    // Mooney image
     const mooneyFigure = document.createElement("figure");
     const mooneyCaption = document.createElement("figcaption");
     const mooneyDot = document.createElement("span");
-    mooneyDot.className = "caption-dot mooney";
 
+    mooneyDot.className = "caption-dot mooney";
     mooneyCaption.append(mooneyDot, document.createTextNode("Mooney"));
 
     const mooneyFrame = document.createElement("div");
@@ -237,6 +287,7 @@ function createImageCard(item, index) {
 
     pair.append(originalFigure, mooneyFigure);
 
+    // Download buttons
     const actions = document.createElement("div");
     actions.className = "image-actions";
 
@@ -272,6 +323,9 @@ function renderResults(images) {
 
     previewDescription.textContent =
         `${images.length} image pair${images.length === 1 ? "" : "s"} converted successfully.`;
+
+    // NEW: Show original filenames
+    renderConvertedFiles(images);
 }
 
 form.addEventListener("submit", async event => {
@@ -295,6 +349,7 @@ form.addEventListener("submit", async event => {
 
     convertButton.disabled = true;
     convertButtonText.textContent = "Converting images...";
+
     showStatus("Processing images. Please keep this page open.");
 
     try {
@@ -335,11 +390,13 @@ form.addEventListener("submit", async event => {
         }
 
         showStatus(message, "success");
+
     } catch (error) {
         showStatus(
             error.message || "Something went wrong. Please try again.",
             "error"
         );
+
     } finally {
         convertButton.disabled = false;
         convertButtonText.textContent = "Convert images";
