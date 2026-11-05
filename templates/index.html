@@ -1,30 +1,45 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#5145e5">
+
     <title>Mooney Studio | CompVP</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles.css') }}">
+
     <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
+
 <body>
 <div class="app-shell">
+
+    <!-- Header -->
     <header class="topbar">
-        <a class="brand" href="/" aria-label="Mooney Studio home">
+        <a class="brand" href="/">
             <span class="brand-mark">M</span>
             <span class="brand-name">Mooney <span>Studio</span></span>
         </a>
+
         <span class="project-label">CompVP Part 1</span>
     </header>
 
     <main>
+
+        <!-- Page heading -->
         <section class="page-heading">
             <div>
                 <p class="eyebrow">COMPUTATIONAL VISUAL PERCEPTION</p>
                 <h1>Mooney Image Studio</h1>
-                <p class="subtitle">Convert your images into Mooney-style binary images and compare both versions.</p>
+                <p class="subtitle">
+                    Convert your images into Mooney-style binary images
+                    and compare both versions.
+                </p>
             </div>
+
             <div class="local-badge">
                 <span class="status-dot"></span>
                 Image conversion workspace
@@ -32,9 +47,12 @@
         </section>
 
         <div class="workspace">
+
+            <!-- Upload and settings panel -->
             <aside class="control-panel">
+
                 <div class="section-heading">
-                    <span class="section-icon" aria-hidden="true">↑</span>
+                    <span class="section-icon">↑</span>
                     <div>
                         <h2>Upload images</h2>
                         <p>Select one or more images to convert</p>
@@ -42,13 +60,23 @@
                 </div>
 
                 <form id="converterForm">
+
+                    <!-- Upload area -->
                     <label class="drop-zone" id="dropZone" for="images">
-                        <span class="upload-icon" aria-hidden="true">⇧</span>
-                        <span class="drop-title">Drag and drop images here</span>
+                        <span class="upload-icon">⇧</span>
+
+                        <span class="drop-title">
+                            Drag and drop images here
+                        </span>
+
                         <span class="drop-description">
                             or <span class="browse-link">browse files</span>
                         </span>
-                        <span class="file-hint">JPG, JPEG, PNG, BMP, TIFF, WEBP · Max 100 MB total</span>
+
+                        <span class="file-hint">
+                            JPG, JPEG, PNG, BMP, TIFF, WEBP · Max 100 MB total
+                        </span>
+
                         <input
                             type="file"
                             id="images"
@@ -58,26 +86,37 @@
                         >
                     </label>
 
-                    <div class="selection-summary" id="selectionSummary" hidden>
+                    <!-- Selected files -->
+                    <div class="selection-summary"
+                         id="selectionSummary"
+                         hidden>
+
                         <div class="selection-details">
                             <strong id="fileCount">0 images selected</strong>
                             <span id="fileSize">0 MB</span>
                         </div>
-                        <button class="text-button" id="clearFiles" type="button">
+
+                        <button
+                            class="text-button"
+                            id="clearFiles"
+                            type="button">
                             Clear files
                         </button>
                     </div>
 
+                    <!-- Settings -->
                     <div class="settings-heading">
                         <h2>Conversion settings</h2>
                         <span class="settings-tag">Adjustable</span>
                     </div>
 
+                    <!-- Blur -->
                     <div class="field-group">
                         <div class="field-label-row">
                             <label for="blur">Blur strength</label>
                             <output id="blurValue" for="blur">2.0</output>
                         </div>
+
                         <input
                             type="range"
                             id="blur"
@@ -87,17 +126,24 @@
                             step="0.5"
                             value="2"
                         >
+
                         <div class="range-labels">
                             <span>0 · None</span>
                             <span>20 · Strong</span>
                         </div>
                     </div>
 
+                    <!-- White pixels -->
                     <div class="field-group">
                         <div class="field-label-row">
-                            <label for="whitePercent">White pixel percentage</label>
-                            <output id="whiteValue" for="whitePercent">16%</output>
+                            <label for="whitePercent">
+                                White pixel percentage
+                            </label>
+                            <output id="whiteValue" for="whitePercent">
+                                16%
+                            </output>
                         </div>
+
                         <input
                             type="range"
                             id="whitePercent"
@@ -107,6 +153,7 @@
                             step="1"
                             value="16"
                         >
+
                         <div class="range-labels">
                             <span>1%</span>
                             <span>99%</span>
@@ -116,83 +163,129 @@
                     <p class="settings-note">
                         <span class="info-icon">i</span>
                         <span>
-                            Adjust blur strength and the target percentage of white pixels
-                            to explore different Mooney image appearances.
+                            Adjust blur strength and the target percentage
+                            of white pixels to explore different Mooney
+                            image appearances.
                         </span>
                     </p>
 
-                    <button class="primary-button" id="convertButton" type="submit">
-                        <span aria-hidden="true">✦</span>
+                    <!-- Convert button -->
+                    <button
+                        class="primary-button"
+                        id="convertButton"
+                        type="submit">
+
+                        <span>✦</span>
                         <span id="convertButtonText">Convert images</span>
                     </button>
+
                 </form>
             </aside>
 
-            <section class="preview-panel" aria-labelledby="previewTitle">
+            <!-- Preview panel -->
+            <section class="preview-panel">
+
                 <div class="preview-header">
                     <div>
                         <div class="preview-title-row">
-                            <h2 id="previewTitle">Image comparison</h2>
+                            <h2>Image comparison</h2>
                             <span class="count-badge" id="resultCount">0</span>
                         </div>
+
                         <p id="previewDescription">
-                            Your original and converted images will appear here.
+                            Your original and converted images
+                            will appear here.
                         </p>
                     </div>
 
-                    <a class="download-button" id="downloadButton" href="#" hidden>
-                        <span aria-hidden="true">↓</span>
-                        Download ZIP
+                    <a
+                        class="download-button"
+                        id="downloadButton"
+                        href="#"
+                        hidden>
+                        ↓ Download ZIP
                     </a>
                 </div>
 
+                <!-- Status message -->
                 <div class="status-box" id="statusBox" hidden>
                     <span
                         class="status-indicator"
-                        id="statusIndicator"
-                        aria-hidden="true"
-                    ></span>
+                        id="statusIndicator">
+                    </span>
+
                     <p id="status" role="status" aria-live="polite"></p>
                 </div>
 
+                <!-- Empty state -->
                 <div class="empty-state" id="emptyState">
-                    <div class="empty-illustration" aria-hidden="true">
-                        <div class="empty-image original-symbol">IMAGE</div>
+
+                    <div class="empty-illustration">
+                        <div class="empty-image original-symbol">
+                            IMAGE
+                        </div>
+
                         <span class="empty-arrow">→</span>
-                        <div class="empty-image mooney-symbol">M</div>
+
+                        <div class="empty-image mooney-symbol">
+                            M
+                        </div>
                     </div>
+
                     <h3>No converted images yet</h3>
+
                     <p>
-                        Upload your images, adjust the settings, and select Convert images
-                        to see the original and Mooney versions side by side.
+                        Upload your images, adjust the settings,
+                        and select Convert images to see the original
+                        and Mooney versions side by side.
                     </p>
                 </div>
 
+                <!-- Converted image cards are inserted here -->
                 <div class="results-grid" id="resultsGrid"></div>
 
-                <div class="download-footer" id="downloadFooter" hidden>
-                    <div class="download-footer-icon" aria-hidden="true">↓</div>
+                <!-- ZIP download footer -->
+                <div class="download-footer"
+                     id="downloadFooter"
+                     hidden>
+
+                    <div class="download-footer-icon">↓</div>
+
                     <div class="download-footer-copy">
                         <strong>Your conversion ZIP is ready</strong>
-                        <span>Download the original images and their Mooney versions.</span>
+                        <span>
+                            Download the original images and their
+                            Mooney versions.
+                        </span>
                     </div>
-                    <a class="secondary-download" id="downloadFooterButton" href="#">
+
+                    <a
+                        class="secondary-download"
+                        id="downloadFooterButton"
+                        href="#">
                         Download ZIP
                     </a>
                 </div>
+
             </section>
         </div>
 
+        <!-- Footer -->
         <footer class="page-footer">
             <span class="footer-brand">Mooney Studio</span>
+
             <span class="footer-credit">
                 Developed by
                 <strong>Md Khorshed Alom</strong>
                 <span class="footer-separator">·</span>
                 <strong>Afsana Akter Bristy</strong>
             </span>
-            <span class="footer-course">FAU · M.Sc. Artificial Intelligence</span>
+
+            <span class="footer-course">
+                FAU · M.Sc. Artificial Intelligence
+            </span>
         </footer>
+
     </main>
 </div>
 </body>
