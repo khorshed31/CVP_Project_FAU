@@ -47,14 +47,14 @@ svg {
     display: block;
 }
 
-/* Header */
-
 .app-shell {
     min-height: 100vh;
 }
 
+/* Header */
+
 .topbar {
-    height: 68px;
+    min-height: 68px;
     padding: 0 max(calc((100vw - 1440px) / 2), 5%);
     display: flex;
     align-items: center;
@@ -79,7 +79,7 @@ svg {
     place-items: center;
     border-radius: 10px;
     background: var(--primary);
-    color: #ffffff;
+    color: #fff;
     font-size: 19px;
     font-weight: 800;
 }
@@ -197,17 +197,7 @@ main {
     border-radius: 10px;
     background: var(--primary-light);
     color: var(--primary);
-}
-
-.section-icon svg,
-.upload-icon svg {
-    width: 21px;
-    height: 21px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    font-size: 22px;
 }
 
 .section-heading h2,
@@ -263,6 +253,7 @@ main {
     border-radius: 11px;
     background: #eae9ff;
     color: var(--primary);
+    font-size: 25px;
 }
 
 .drop-title {
@@ -431,22 +422,11 @@ input[type="range"] {
     border: 0;
     border-radius: 8px;
     background: var(--primary);
-    color: #ffffff;
+    color: #fff;
     font-size: 11px;
     font-weight: 750;
     cursor: pointer;
     transition: background 0.2s, transform 0.2s;
-}
-
-.primary-button svg,
-.download-button svg {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
 }
 
 .primary-button:hover {
@@ -514,7 +494,7 @@ input[type="range"] {
     border: 1px solid var(--primary);
     border-radius: 8px;
     background: var(--primary);
-    color: #ffffff;
+    color: #fff;
     text-decoration: none;
     font-size: 10px;
     font-weight: 750;
@@ -612,7 +592,7 @@ input[type="range"] {
 .mooney-symbol {
     border-color: #292b39;
     background: #181a24;
-    color: #ffffff;
+    color: #fff;
 }
 
 .empty-arrow {
@@ -649,7 +629,7 @@ input[type="range"] {
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 10px;
-    background: #ffffff;
+    background: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -693,8 +673,10 @@ input[type="range"] {
 }
 
 .image-pair figcaption {
+    min-height: 30px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 5px;
     margin-bottom: 7px;
     color: #777c91;
@@ -712,6 +694,23 @@ input[type="range"] {
 
 .caption-dot.mooney {
     background: var(--primary);
+}
+
+.image-kind {
+    flex-shrink: 0;
+    color: #777c91;
+}
+
+.image-filename {
+    flex: 1 1 100%;
+    min-width: 0;
+    padding-left: 11px;
+    color: var(--text);
+    font-size: 9px;
+    font-weight: 750;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .image-frame {
@@ -754,7 +753,7 @@ input[type="range"] {
     padding: 7px 4px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: #ffffff;
+    background: #fff;
     color: #62677b;
     text-align: center;
     text-decoration: none;
@@ -790,7 +789,7 @@ input[type="range"] {
     padding: 13px;
     border: 1px solid #dcdafc;
     border-radius: 10px;
-    background: linear-gradient(120deg, #f8f7ff, #ffffff);
+    background: linear-gradient(120deg, #f8f7ff, #fff);
 }
 
 .download-footer-icon {
@@ -802,16 +801,7 @@ input[type="range"] {
     border-radius: 9px;
     background: #e9e7ff;
     color: var(--primary);
-}
-
-.download-footer-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    font-size: 20px;
 }
 
 .download-footer-copy {
@@ -838,7 +828,7 @@ input[type="range"] {
     padding: 8px 10px;
     border: 1px solid #d7d4ff;
     border-radius: 7px;
-    background: #ffffff;
+    background: #fff;
     color: var(--primary);
     text-decoration: none;
     font-size: 9px;
@@ -849,7 +839,7 @@ input[type="range"] {
     background: #f1f0ff;
 }
 
-/* Compact developer credits footer */
+/* Footer */
 
 .page-footer {
     display: flex;
@@ -923,7 +913,7 @@ input[type="range"] {
 
 @media (max-width: 760px) {
     .topbar {
-        height: 62px;
+        min-height: 62px;
         padding: 0 4%;
     }
 
@@ -960,8 +950,7 @@ input[type="range"] {
     }
 
     .footer-credit {
-        flex-basis: 100%;
-        order: 3;
+        text-align: left;
     }
 }
 
@@ -1011,93 +1000,10 @@ input[type="range"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
     *,
     *::before,
     *::after {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
-}
-
-
-/* Original Filenames Panel */
-
-.converted-files-panel {
-    margin-top: 18px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: #fafaff;
-}
-
-.converted-files-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.converted-files-heading h3 {
-    margin: 0;
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.converted-files-heading p {
-    margin: 5px 0 0;
-    color: var(--muted);
-    font-size: 10px;
-    line-height: 1.5;
-}
-
-.converted-files-count {
-    flex-shrink: 0;
-    padding: 6px 9px;
-    border-radius: 6px;
-    background: var(--primary-light);
-    color: var(--primary);
-    font-size: 10px;
-    font-weight: 800;
-}
-
-#converted-files-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#converted-files-list li {
-    min-width: 0;
-    padding: 9px 10px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: #ffffff;
-    color: #62677b;
-    font-size: 10px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-}
-
-/* Mobile layout */
-@media (max-width: 500px) {
-    .converted-files-panel {
-        padding: 12px;
     }
-
-    #converted-files-list {
-        grid-template-columns: 1fr;
-    }
-
-    .converted-files-heading {
-        align-items: flex-start;
-    }
-}
