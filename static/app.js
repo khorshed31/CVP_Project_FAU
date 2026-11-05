@@ -1,3 +1,4 @@
+"use strict";
 
 const form = document.getElementById("converterForm");
 const imageInput = document.getElementById("images");
@@ -29,18 +30,18 @@ const downloadButton = document.getElementById("downloadButton");
 const downloadFooter = document.getElementById("downloadFooter");
 const downloadFooterButton = document.getElementById("downloadFooterButton");
 
-// NEW: Original filenames elements
-const convertedFilesPanel = document.getElementById("converted-files-panel");
-const convertedFilesList = document.getElementById("converted-files-list");
-const convertedFilesCount = document.getElementById("converted-files-count");
-
 let currentDownloadURL = "";
 
+// Format file size
 function formatBytes(bytes) {
-    if (!bytes) return "0 MB";
+    if (!Number.isFinite(bytes) || bytes <= 0) {
+        return "0 MB";
+    }
+
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+// Update conversion settings labels
 function updateSettingsLabels() {
     blurValue.textContent = Number(blurInput.value).toFixed(1);
     whiteValue.textContent = `${whiteInput.value}%`;
@@ -49,49 +50,24 @@ function updateSettingsLabels() {
 blurInput.addEventListener("input", updateSettingsLabels);
 whiteInput.addEventListener("input", updateSettingsLabels);
 
+// Display status messages
 function showStatus(message, type = "normal") {
     statusBox.hidden = !message;
     statusText.textContent = message;
 
     statusBox.classList.remove("success", "error");
 
-    if (type === "success") {
-        statusBox.classList.add("success");
-    } else if (type === "error") {
-        statusBox.classList.add("error");
+    if (type === "success" || type === "error") {
+        statusBox.classList.add(type);
     }
 
     statusIndicator.setAttribute("aria-hidden", "true");
 }
 
-// NEW: Display original filenames after conversion
-function renderConvertedFiles(images) {
-    if (!convertedFilesPanel || !convertedFilesList || !convertedFilesCount) {
-        return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    images.forEach((item, index) => {
-        const listItem = document.createElement("li");
-
-        // Use the original filename returned by the backend
-        listItem.textContent =
-            item.original_name || `Image ${index + 1}`;
-
-        fragment.appendChild(listItem);
-    });
-
-    convertedFilesList.replaceChildren(fragment);
-
-    convertedFilesCount.textContent =
-        `${images.length} image${images.length === 1 ? "" : "s"}`;
-
-    convertedFilesPanel.hidden = images.length === 0;
-}
-
+// Clear previous conversion results
 function clearPreviousResults() {
     resultsGrid.replaceChildren();
+
     resultCount.textContent = "0";
     emptyState.hidden = false;
     downloadButton.hidden = true;
@@ -100,24 +76,13 @@ function clearPreviousResults() {
     previewDescription.textContent =
         "Your original and converted images will appear here.";
 
-    // NEW: Clear original filenames
-    if (convertedFilesPanel) {
-        convertedFilesPanel.hidden = true;
-    }
-
-    if (convertedFilesList) {
-        convertedFilesList.replaceChildren();
-    }
-
-    if (convertedFilesCount) {
-        convertedFilesCount.textContent = "0 images";
-    }
-
     currentDownloadURL = "";
+
     downloadButton.removeAttribute("href");
     downloadFooterButton.removeAttribute("href");
 }
 
+// Update selected file information
 function updateSelectedFiles() {
     const files = Array.from(imageInput.files || []);
 
@@ -126,7 +91,10 @@ function updateSelectedFiles() {
         return;
     }
 
-    const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+    const totalBytes = files.reduce(
+        (sum, file) => sum + file.size,
+        0
+    );
 
     fileCount.textContent =
         `${files.length} image${files.length === 1 ? "" : "s"} selected`;
@@ -135,6 +103,7 @@ function updateSelectedFiles() {
     selectionSummary.hidden = false;
 }
 
+// Set files from drag and drop
 function setFiles(files) {
     const accepted = Array.from(files).filter(file =>
         file.type.startsWith("image/")
@@ -147,7 +116,10 @@ function setFiles(files) {
 
     const transfer = new DataTransfer();
 
-    accepted.forEach(file => transfer.items.add(file));
+    accepted.forEach(file => {
+        transfer.items.add(file);
+    });
+
     imageInput.files = transfer.files;
 
     clearPreviousResults();
@@ -158,6 +130,7 @@ function setFiles(files) {
     );
 }
 
+// File selection event
 imageInput.addEventListener("change", () => {
     if (imageInput.files.length > 0) {
         updateSelectedFiles();
@@ -171,13 +144,16 @@ imageInput.addEventListener("change", () => {
     }
 });
 
+// Clear selected files
 clearFilesButton.addEventListener("click", () => {
     imageInput.value = "";
+
     updateSelectedFiles();
     clearPreviousResults();
     showStatus("");
 });
 
+// Drag and drop events
 ["dragenter", "dragover"].forEach(eventName => {
     dropZone.addEventListener(eventName, event => {
         event.preventDefault();
@@ -200,19 +176,33 @@ dropZone.addEventListener("drop", event => {
     }
 });
 
+// Create individual download buttons
 function makeDownloadLink(url, filename, label, isMooney = false) {
     const link = document.createElement("a");
+
     link.className = "image-download";
     link.href = url;
     link.download = filename;
     link.setAttribute("aria-label", label);
 
-    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const icon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+    );
+
     icon.setAttribute("viewBox", "0 0 24 24");
     icon.setAttribute("aria-hidden", "true");
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", "M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4");
+    const path = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path"
+    );
+
+    path.setAttribute(
+        "d",
+        "M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"
+    );
+
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", "currentColor");
     path.setAttribute("stroke-width", "1.8");
@@ -222,135 +212,219 @@ function makeDownloadLink(url, filename, label, isMooney = false) {
     icon.appendChild(path);
 
     const text = document.createElement("span");
-    text.textContent = isMooney ? "Download Mooney" : "Download original";
+
+    text.textContent = isMooney
+        ? "Download Mooney"
+        : "Download original";
 
     link.append(icon, text);
+
     return link;
 }
 
+// Create caption showing image type and original filename
+function createImageCaption(label, originalFilename, isMooney = false) {
+    const caption = document.createElement("figcaption");
+
+    const dot = document.createElement("span");
+
+    dot.className = isMooney
+        ? "caption-dot mooney"
+        : "caption-dot";
+
+    dot.setAttribute("aria-hidden", "true");
+
+    const labelText = document.createElement("span");
+
+    labelText.className = "image-kind";
+    labelText.textContent = label;
+
+    // Original filename shown on BOTH Original and Mooney images
+    const filename = document.createElement("span");
+
+    filename.className = "image-filename";
+    filename.textContent = originalFilename;
+    filename.title = originalFilename;
+
+    caption.append(dot, labelText, filename);
+
+    return caption;
+}
+
+// Create one image comparison card
 function createImageCard(item, index) {
     const card = document.createElement("article");
+
     card.className = "image-card";
 
+    // Original filename returned by Flask
+    const originalName =
+        item.original_name ||
+        item.filename ||
+        `Image ${index + 1}`;
+
+    const originalURL = item.original_url;
+    const mooneyURL = item.mooney_url;
+
+    // Card header
     const header = document.createElement("div");
+
     header.className = "card-header";
 
     const title = document.createElement("h2");
-    title.textContent = item.original_name || `Image ${index + 1}`;
+
+    title.textContent = originalName;
+    title.title = originalName;
 
     const number = document.createElement("span");
+
     number.className = "card-number";
     number.textContent = `#${String(index + 1).padStart(3, "0")}`;
 
     header.append(title, number);
 
+    // Image pair container
     const pair = document.createElement("div");
+
     pair.className = "image-pair";
 
-    // Original image
-    const originalFigure = document.createElement("figure");
-    const originalCaption = document.createElement("figcaption");
-    const originalDot = document.createElement("span");
+    // -----------------------------
+    // ORIGINAL IMAGE
+    // -----------------------------
 
-    originalDot.className = "caption-dot";
-    originalCaption.append(originalDot, document.createTextNode("Original"));
+    const originalFigure = document.createElement("figure");
+
+    originalFigure.className = "image-result";
+
+    // Original label + original filename
+    originalFigure.appendChild(
+        createImageCaption("Original", originalName)
+    );
 
     const originalFrame = document.createElement("div");
+
     originalFrame.className = "image-frame";
 
     const originalImage = document.createElement("img");
-    originalImage.src = item.original_url;
-    originalImage.alt = `Original image ${index + 1}`;
+
+    originalImage.src = originalURL;
+    originalImage.alt = `Original image: ${originalName}`;
     originalImage.loading = "lazy";
 
     originalFrame.appendChild(originalImage);
-    originalFigure.append(originalCaption, originalFrame);
+    originalFigure.appendChild(originalFrame);
 
-    // Mooney image
+    // -----------------------------
+    // MOONEY IMAGE
+    // -----------------------------
+
     const mooneyFigure = document.createElement("figure");
-    const mooneyCaption = document.createElement("figcaption");
-    const mooneyDot = document.createElement("span");
 
-    mooneyDot.className = "caption-dot mooney";
-    mooneyCaption.append(mooneyDot, document.createTextNode("Mooney"));
+    mooneyFigure.className = "image-result";
+
+    // Mooney label + SAME original filename
+    mooneyFigure.appendChild(
+        createImageCaption("Mooney", originalName, true)
+    );
 
     const mooneyFrame = document.createElement("div");
+
     mooneyFrame.className = "image-frame mooney-frame";
 
     const mooneyImage = document.createElement("img");
-    mooneyImage.src = item.mooney_url;
-    mooneyImage.alt = `Mooney image ${index + 1}`;
+
+    mooneyImage.src = mooneyURL;
+    mooneyImage.alt = `Mooney version of ${originalName}`;
     mooneyImage.loading = "lazy";
 
     mooneyFrame.appendChild(mooneyImage);
-    mooneyFigure.append(mooneyCaption, mooneyFrame);
+    mooneyFigure.appendChild(mooneyFrame);
 
+    // Add both images
     pair.append(originalFigure, mooneyFigure);
 
-    // Download buttons
+    // -----------------------------
+    // DOWNLOAD BUTTONS
+    // -----------------------------
+
     const actions = document.createElement("div");
+
     actions.className = "image-actions";
 
     actions.append(
         makeDownloadLink(
-            item.original_url,
-            item.original_name || `original_${index + 1}.png`,
-            `Download original image ${index + 1}`
+            originalURL,
+            originalName,
+            `Download original image ${originalName}`
         ),
+
         makeDownloadLink(
-            item.mooney_url,
+            mooneyURL,
             item.mooney_name || `mooney_${index + 1}.png`,
-            `Download Mooney image ${index + 1}`,
+            `Download Mooney image created from ${originalName}`,
             true
         )
     );
 
     card.append(header, pair, actions);
+
     return card;
 }
 
+// Display all converted image cards
 function renderResults(images) {
     const fragment = document.createDocumentFragment();
 
     images.forEach((item, index) => {
-        fragment.appendChild(createImageCard(item, index));
+        fragment.appendChild(
+            createImageCard(item, index)
+        );
     });
 
     resultsGrid.replaceChildren(fragment);
 
     resultCount.textContent = String(images.length);
+
     emptyState.hidden = images.length > 0;
 
     previewDescription.textContent =
         `${images.length} image pair${images.length === 1 ? "" : "s"} converted successfully.`;
-
-    // NEW: Show original filenames
-    renderConvertedFiles(images);
 }
 
+// Main conversion form
 form.addEventListener("submit", async event => {
     event.preventDefault();
 
+    // Check selected images
     if (!imageInput.files.length) {
         showStatus("Please select at least one image.", "error");
         imageInput.focus();
         return;
     }
 
-    const totalSize = Array.from(imageInput.files)
-        .reduce((sum, file) => sum + file.size, 0);
+    // Check upload size
+    const totalSize = Array.from(imageInput.files).reduce(
+        (sum, file) => sum + file.size,
+        0
+    );
 
     if (totalSize > 100 * 1024 * 1024) {
-        showStatus("Total upload size exceeds the 100 MB limit.", "error");
+        showStatus(
+            "Total upload size exceeds the 100 MB limit.",
+            "error"
+        );
         return;
     }
 
     clearPreviousResults();
 
     convertButton.disabled = true;
+
     convertButtonText.textContent = "Converting images...";
 
-    showStatus("Processing images. Please keep this page open.");
+    showStatus(
+        "Processing images. Please keep this page open."
+    );
 
     try {
         const formData = new FormData(form);
@@ -360,32 +434,51 @@ form.addEventListener("submit", async event => {
             body: formData
         });
 
-        const data = await response.json();
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error(
+                "The server returned an invalid response. Please check the Flask logs."
+            );
+        }
 
         if (!response.ok) {
-            throw new Error(data.error || "Image conversion failed.");
+            throw new Error(
+                data.error || "Image conversion failed."
+            );
         }
 
         if (!Array.isArray(data.images) || data.images.length === 0) {
             throw new Error("No images were converted.");
         }
 
+        // Show Original + Mooney previews and filenames
         renderResults(data.images);
 
-        currentDownloadURL = data.download_url;
+        // ZIP download links
+        if (data.download_url) {
+            currentDownloadURL = data.download_url;
 
-        downloadButton.href = currentDownloadURL;
-        downloadButton.download = "mooney_results.zip";
-        downloadButton.hidden = false;
+            downloadButton.href = currentDownloadURL;
+            downloadButton.download = "mooney_results.zip";
+            downloadButton.hidden = false;
 
-        downloadFooterButton.href = currentDownloadURL;
-        downloadFooterButton.download = "mooney_results.zip";
-        downloadFooter.hidden = false;
+            downloadFooterButton.href = currentDownloadURL;
+            downloadFooterButton.download = "mooney_results.zip";
+
+            downloadFooter.hidden = false;
+        }
+
+        const convertedCount = Number.isFinite(Number(data.count))
+            ? Number(data.count)
+            : data.images.length;
 
         let message =
-            `${data.count} image${data.count === 1 ? "" : "s"} converted successfully.`;
+            `${convertedCount} image${convertedCount === 1 ? "" : "s"} converted successfully.`;
 
-        if (data.warnings && data.warnings.length) {
+        if (Array.isArray(data.warnings) && data.warnings.length) {
             message += ` ${data.warnings.length} file(s) were skipped.`;
         }
 
@@ -403,5 +496,6 @@ form.addEventListener("submit", async event => {
     }
 });
 
+// Initialize page
 updateSettingsLabels();
 updateSelectedFiles();
