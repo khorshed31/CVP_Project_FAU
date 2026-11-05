@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -222,7 +223,33 @@
                     </p>
                 </div>
 
+                <!-- Converted image results -->
                 <div id="resultsGrid" class="results-grid"></div>
+
+                <!-- NEW: Original filenames panel -->
+                <section
+                    id="converted-files-panel"
+                    class="converted-files-panel"
+                    hidden
+                >
+                    <div class="converted-files-heading">
+                        <div>
+                            <h3>Original Filenames</h3>
+                            <p>
+                                Original images included in this conversion batch.
+                            </p>
+                        </div>
+
+                        <span
+                            id="converted-files-count"
+                            class="converted-files-count"
+                        >
+                            0 images
+                        </span>
+                    </div>
+
+                    <ul id="converted-files-list"></ul>
+                </section>
 
                 <div id="downloadFooter" class="download-footer" hidden>
                     <div class="download-footer-icon">
@@ -244,7 +271,7 @@
             </section>
         </section>
 
-        <!-- Compact developer credits footer -->
+        <!-- Developer credits footer -->
         <footer class="page-footer">
             <span class="footer-brand">Mooney Studio</span>
 
