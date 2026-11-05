@@ -1,4 +1,7 @@
+
 "use strict";
+
+/* ELEMENTS */
 
 const form = document.getElementById("converterForm");
 const imageInput = document.getElementById("images");
@@ -32,16 +35,20 @@ const downloadFooterButton = document.getElementById("downloadFooterButton");
 
 let currentDownloadURL = "";
 
-// Format file size
+
+/* FILE SIZE */
+
 function formatBytes(bytes) {
-    if (!Number.isFinite(bytes) || bytes <= 0) {
+    if (!bytes || bytes <= 0) {
         return "0 MB";
     }
 
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-// Update conversion settings labels
+
+/* SETTINGS LABELS */
+
 function updateSettingsLabels() {
     blurValue.textContent = Number(blurInput.value).toFixed(1);
     whiteValue.textContent = `${whiteInput.value}%`;
@@ -50,7 +57,9 @@ function updateSettingsLabels() {
 blurInput.addEventListener("input", updateSettingsLabels);
 whiteInput.addEventListener("input", updateSettingsLabels);
 
-// Display status messages
+
+/* STATUS MESSAGE */
+
 function showStatus(message, type = "normal") {
     statusBox.hidden = !message;
     statusText.textContent = message;
@@ -64,12 +73,15 @@ function showStatus(message, type = "normal") {
     statusIndicator.setAttribute("aria-hidden", "true");
 }
 
-// Clear previous conversion results
+
+/* CLEAR PREVIOUS RESULTS */
+
 function clearPreviousResults() {
     resultsGrid.replaceChildren();
 
     resultCount.textContent = "0";
     emptyState.hidden = false;
+
     downloadButton.hidden = true;
     downloadFooter.hidden = true;
 
@@ -82,7 +94,9 @@ function clearPreviousResults() {
     downloadFooterButton.removeAttribute("href");
 }
 
-// Update selected file information
+
+/* SELECTED FILE INFORMATION */
+
 function updateSelectedFiles() {
     const files = Array.from(imageInput.files || []);
 
@@ -100,10 +114,13 @@ function updateSelectedFiles() {
         `${files.length} image${files.length === 1 ? "" : "s"} selected`;
 
     fileSize.textContent = formatBytes(totalBytes);
+
     selectionSummary.hidden = false;
 }
 
-// Set files from drag and drop
+
+/* DRAG AND DROP FILE SELECTION */
+
 function setFiles(files) {
     const accepted = Array.from(files).filter(file =>
         file.type.startsWith("image/")
@@ -130,7 +147,9 @@ function setFiles(files) {
     );
 }
 
-// File selection event
+
+/* FILE INPUT EVENT */
+
 imageInput.addEventListener("change", () => {
     if (imageInput.files.length > 0) {
         updateSelectedFiles();
@@ -144,16 +163,21 @@ imageInput.addEventListener("change", () => {
     }
 });
 
-// Clear selected files
+
+/* CLEAR SELECTED FILES */
+
 clearFilesButton.addEventListener("click", () => {
     imageInput.value = "";
 
     updateSelectedFiles();
     clearPreviousResults();
+
     showStatus("");
 });
 
-// Drag and drop events
+
+/* DRAG EVENTS */
+
 ["dragenter", "dragover"].forEach(eventName => {
     dropZone.addEventListener(eventName, event => {
         event.preventDefault();
@@ -171,13 +195,20 @@ clearFilesButton.addEventListener("click", () => {
 dropZone.addEventListener("drop", event => {
     const files = event.dataTransfer?.files;
 
-    if (files && files.length) {
+    if (files && files.length > 0) {
         setFiles(files);
     }
 });
 
-// Create individual download buttons
-function makeDownloadLink(url, filename, label, isMooney = false) {
+
+/* DOWNLOAD BUTTON CREATION */
+
+function makeDownloadLink(
+    url,
+    filename,
+    label,
+    isMooney = false
+) {
     const link = document.createElement("a");
 
     link.className = "image-download";
@@ -222,7 +253,9 @@ function makeDownloadLink(url, filename, label, isMooney = false) {
     return link;
 }
 
-// Create caption showing image type and original filename
+
+/* IMAGE CAPTION WITH ORIGINAL FILENAME */
+
 function createImageCaption(label, originalFilename, isMooney = false) {
     const caption = document.createElement("figcaption");
 
@@ -239,7 +272,12 @@ function createImageCaption(label, originalFilename, isMooney = false) {
     labelText.className = "image-kind";
     labelText.textContent = label;
 
-    // Original filename shown on BOTH Original and Mooney images
+    /*
+       IMPORTANT:
+       The same original filename is displayed
+       on both Original and Mooney image captions.
+    */
+
     const filename = document.createElement("span");
 
     filename.className = "image-filename";
@@ -251,22 +289,44 @@ function createImageCaption(label, originalFilename, isMooney = false) {
     return caption;
 }
 
-// Create one image comparison card
+
+/* CREATE IMAGE CARD */
+
 function createImageCard(item, index) {
     const card = document.createElement("article");
 
     card.className = "image-card";
 
-    // Original filename returned by Flask
+
+    /*
+       Original uploaded filename.
+       Example: face_021.jpg
+    */
+
     const originalName =
         item.original_name ||
         item.filename ||
-        `Image ${index + 1}`;
+        `original_${index + 1}.jpg`;
+
+
+    /*
+       Generated Mooney filename is used for
+       the Mooney download button.
+
+       The visible Mooney caption still displays
+       the original uploaded filename.
+    */
+
+    const mooneyName =
+        item.mooney_name ||
+        `mooney_${index + 1}.png`;
 
     const originalURL = item.original_url;
     const mooneyURL = item.mooney_url;
 
-    // Card header
+
+    /* CARD HEADER */
+
     const header = document.createElement("div");
 
     header.className = "card-header";
@@ -279,26 +339,32 @@ function createImageCard(item, index) {
     const number = document.createElement("span");
 
     number.className = "card-number";
-    number.textContent = `#${String(index + 1).padStart(3, "0")}`;
+
+    number.textContent =
+        `#${String(index + 1).padStart(3, "0")}`;
 
     header.append(title, number);
 
-    // Image pair container
+
+    /* IMAGE PAIR */
+
     const pair = document.createElement("div");
 
     pair.className = "image-pair";
 
-    // -----------------------------
-    // ORIGINAL IMAGE
-    // -----------------------------
+
+    /* ---------------------------------
+       ORIGINAL IMAGE
+    --------------------------------- */
 
     const originalFigure = document.createElement("figure");
 
-    originalFigure.className = "image-result";
-
-    // Original label + original filename
     originalFigure.appendChild(
-        createImageCaption("Original", originalName)
+        createImageCaption(
+            "Original",
+            originalName,
+            false
+        )
     );
 
     const originalFrame = document.createElement("div");
@@ -308,23 +374,29 @@ function createImageCard(item, index) {
     const originalImage = document.createElement("img");
 
     originalImage.src = originalURL;
-    originalImage.alt = `Original image: ${originalName}`;
+
+    originalImage.alt =
+        `Original image: ${originalName}`;
+
     originalImage.loading = "lazy";
 
     originalFrame.appendChild(originalImage);
+
     originalFigure.appendChild(originalFrame);
 
-    // -----------------------------
-    // MOONEY IMAGE
-    // -----------------------------
+
+    /* ---------------------------------
+       MOONEY IMAGE
+    --------------------------------- */
 
     const mooneyFigure = document.createElement("figure");
 
-    mooneyFigure.className = "image-result";
-
-    // Mooney label + SAME original filename
     mooneyFigure.appendChild(
-        createImageCaption("Mooney", originalName, true)
+        createImageCaption(
+            "Mooney",
+            originalName,
+            true
+        )
     );
 
     const mooneyFrame = document.createElement("div");
@@ -334,18 +406,23 @@ function createImageCard(item, index) {
     const mooneyImage = document.createElement("img");
 
     mooneyImage.src = mooneyURL;
-    mooneyImage.alt = `Mooney version of ${originalName}`;
+
+    mooneyImage.alt =
+        `Mooney version of ${originalName}`;
+
     mooneyImage.loading = "lazy";
 
     mooneyFrame.appendChild(mooneyImage);
+
     mooneyFigure.appendChild(mooneyFrame);
 
-    // Add both images
+
+    /* ADD BOTH IMAGES */
+
     pair.append(originalFigure, mooneyFigure);
 
-    // -----------------------------
-    // DOWNLOAD BUTTONS
-    // -----------------------------
+
+    /* DOWNLOAD BUTTONS */
 
     const actions = document.createElement("div");
 
@@ -355,27 +432,39 @@ function createImageCard(item, index) {
         makeDownloadLink(
             originalURL,
             originalName,
-            `Download original image ${originalName}`
+            `Download original ${originalName}`,
+            false
         ),
 
         makeDownloadLink(
             mooneyURL,
-            item.mooney_name || `mooney_${index + 1}.png`,
-            `Download Mooney image created from ${originalName}`,
+            mooneyName,
+            `Download Mooney image generated from ${originalName}`,
             true
         )
     );
+
+
+    /* FINAL CARD */
 
     card.append(header, pair, actions);
 
     return card;
 }
 
-// Display all converted image cards
+
+/* RENDER ALL RESULTS */
+
 function renderResults(images) {
     const fragment = document.createDocumentFragment();
 
     images.forEach((item, index) => {
+        if (!item.original_url || !item.mooney_url) {
+            throw new Error(
+                `Image ${index + 1} is missing an image URL.`
+            );
+        }
+
         fragment.appendChild(
             createImageCard(item, index)
         );
@@ -391,18 +480,29 @@ function renderResults(images) {
         `${images.length} image pair${images.length === 1 ? "" : "s"} converted successfully.`;
 }
 
-// Main conversion form
+
+/* MAIN CONVERSION FORM */
+
 form.addEventListener("submit", async event => {
     event.preventDefault();
 
-    // Check selected images
+
+    /* Check selected images */
+
     if (!imageInput.files.length) {
-        showStatus("Please select at least one image.", "error");
+        showStatus(
+            "Please select at least one image.",
+            "error"
+        );
+
         imageInput.focus();
+
         return;
     }
 
-    // Check upload size
+
+    /* Check total upload size */
+
     const totalSize = Array.from(imageInput.files).reduce(
         (sum, file) => sum + file.size,
         0
@@ -413,18 +513,24 @@ form.addEventListener("submit", async event => {
             "Total upload size exceeds the 100 MB limit.",
             "error"
         );
+
         return;
     }
+
+
+    /* Start conversion */
 
     clearPreviousResults();
 
     convertButton.disabled = true;
 
-    convertButtonText.textContent = "Converting images...";
+    convertButtonText.textContent =
+        "Converting images...";
 
     showStatus(
         "Processing images. Please keep this page open."
     );
+
 
     try {
         const formData = new FormData(form);
@@ -434,15 +540,21 @@ form.addEventListener("submit", async event => {
             body: formData
         });
 
+
+        /* Read server response */
+
         let data;
 
         try {
             data = await response.json();
         } catch {
             throw new Error(
-                "The server returned an invalid response. Please check the Flask logs."
+                "Invalid server response. Please check your Flask backend."
             );
         }
+
+
+        /* Check server errors */
 
         if (!response.ok) {
             throw new Error(
@@ -450,52 +562,83 @@ form.addEventListener("submit", async event => {
             );
         }
 
-        if (!Array.isArray(data.images) || data.images.length === 0) {
+
+        /* Check converted images */
+
+        if (
+            !Array.isArray(data.images) ||
+            data.images.length === 0
+        ) {
             throw new Error("No images were converted.");
         }
 
-        // Show Original + Mooney previews and filenames
+
+        /* Render image cards */
+
         renderResults(data.images);
 
-        // ZIP download links
+
+        /* Set ZIP download links */
+
         if (data.download_url) {
             currentDownloadURL = data.download_url;
 
             downloadButton.href = currentDownloadURL;
-            downloadButton.download = "mooney_results.zip";
+
+            downloadButton.download =
+                "mooney_results.zip";
+
             downloadButton.hidden = false;
 
-            downloadFooterButton.href = currentDownloadURL;
-            downloadFooterButton.download = "mooney_results.zip";
+
+            downloadFooterButton.href =
+                currentDownloadURL;
+
+            downloadFooterButton.download =
+                "mooney_results.zip";
 
             downloadFooter.hidden = false;
         }
 
-        const convertedCount = Number.isFinite(Number(data.count))
-            ? Number(data.count)
-            : data.images.length;
+
+        /* Success message */
+
+        const convertedCount =
+            Number(data.count) || data.images.length;
 
         let message =
             `${convertedCount} image${convertedCount === 1 ? "" : "s"} converted successfully.`;
 
-        if (Array.isArray(data.warnings) && data.warnings.length) {
-            message += ` ${data.warnings.length} file(s) were skipped.`;
+        if (
+            Array.isArray(data.warnings) &&
+            data.warnings.length > 0
+        ) {
+            message +=
+                ` ${data.warnings.length} file(s) were skipped.`;
         }
 
         showStatus(message, "success");
 
+
     } catch (error) {
+
         showStatus(
-            error.message || "Something went wrong. Please try again.",
+            error.message ||
+            "Something went wrong. Please try again.",
             "error"
         );
 
     } finally {
+
         convertButton.disabled = false;
-        convertButtonText.textContent = "Convert images";
+
+        convertButtonText.textContent =
+            "Convert images";
     }
 });
 
-// Initialize page
+
+/* INITIALIZE PAGE */
+
 updateSettingsLabels();
 updateSelectedFiles();
